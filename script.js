@@ -8,9 +8,9 @@ if (!sessionId) {
     localStorage.setItem('sessionId', sessionId);
 }
 
-const SERVER_URL = 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app'; // Your Ngrok URL
+const SERVER_URL = 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app/';
 
-const socket = io(SERVER_URL); // Update to use Ngrok URL
+const socket = io();
 
 socket.on('hpUpdate', (currentHP) => {
     updateHP(currentHP);
@@ -78,7 +78,7 @@ function bonkDog() {
     // Re-enable clicking after 1 second
     setTimeout(() => {
         canClick = true;
-    }, 1000);
+    }, 500);
 }
 
 function updateScore(score) {
