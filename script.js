@@ -10,7 +10,7 @@ if (!sessionId) {
 
 const SERVER_URL = 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app';
 
-const socket = io();
+const socket = io('https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app'); // Update to use Ngrok URL
 
 socket.on('hpUpdate', (currentHP) => {
     updateHP(currentHP);
