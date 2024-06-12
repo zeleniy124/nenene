@@ -8,7 +8,7 @@ if (!sessionId) {
     localStorage.setItem('sessionId', sessionId);
 }
 
-const SERVER_URL = 'http://localhost:80';
+const SERVER_URL = 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app';
 
 const socket = io();
 
