@@ -9,21 +9,11 @@ const socketIo = require('socket.io');
 const app = express();
 const port = 80;
 const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: 'https://cosmic-shortbread-544cb2.netlify.app', // Allow this origin
-        methods: ['GET', 'POST'],
-        credentials: true,
-    },
-});
+const io = socketIo(server);
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors({
-    origin: 'https://cosmic-shortbread-544cb2.netlify.app', // Allow this origin
-    methods: ['GET', 'POST', 'DELETE'],
-    credentials: true,
-}));
+app.use(cors());
 
 // MongoDB connection
 const mongoURI = process.env.MONGODB_URI || "mongodb+srv://admin:admin@cluster0.iw8pgql.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
@@ -76,17 +66,7 @@ app.get('/api/scores', async (req, res) => {
 });
 
 // Clear all scores from the database
-app.delete('/api/scores', async (req, res) => {
-    try {
-        await Score.deleteMany({});
-        res.status(200).json({ message: 'All scores cleared' });
 
-        // Emit the updated HP and scores to all connected clients
-        updateHPAndScores();
-    } catch (error) {
-        res.status(500).json({ message: 'Error clearing scores' });
-    }
-});
 
 // Serve static files from the root directory
 app.use(express.static(path.join(__dirname, '.')));
