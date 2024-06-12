@@ -9,7 +9,7 @@ const socketIo = require('socket.io');
 const app = express();
 const port = 80;
 const server = http.createServer(app);
-const io = socketIo(server);
+const socket = io('https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app'); // Update to use Ngrok URL
 
 // Middleware
 app.use(bodyParser.json());
