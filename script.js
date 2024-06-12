@@ -89,7 +89,7 @@ function bonkDog() {
     // Re-enable clicking after 1 second
     setTimeout(() => {
         canClick = true;
-    }, 1000);
+    }, 500);
 
     // Fetch the latest HP and scores
     fetchHPAndScores();
