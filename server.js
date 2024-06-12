@@ -14,7 +14,7 @@ const io = socketIo(server);
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-    origin: 'https://cosmic-shortbread-544cb2.netlify.app', // Allow this origin
+    origin: 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app', // Allow this origin
     methods: ['GET', 'POST', 'DELETE'],
     credentials: true,
 }));
