@@ -4,16 +4,23 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const http = require('http');
-const socketIo = require('socket.io');
+const WebSocket = require('ws');
 
 const app = express();
-const port = 80;
+const port = process.env.PORT || 3000;
 const server = http.createServer(app);
-const io = socketIo(server);
+const wss = new WebSocket.Server({ server });
 
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({
+    origin: 'https://cosmic-shortbread-544cb2.netlify.app', // Allow this origin
+    methods: ['GET', 'POST', 'DELETE'],
+    credentials: true,
+}));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
 const mongoURI = process.env.MONGODB_URI || "mongodb+srv://admin:admin@cluster0.iw8pgql.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
@@ -28,6 +35,31 @@ const ScoreSchema = new mongoose.Schema({
 });
 
 const Score = mongoose.model('Score', ScoreSchema);
+
+// WebSocket connection
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+    
+    ws.on('message', (message) => {
+        console.log(`Received message: ${message}`);
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+    
+    // Send initial HP and scores when a client connects
+    updateHPAndScores(ws);
+});
+
+// Broadcast function to send messages to all connected clients
+function broadcast(data) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(data));
+        }
+    });
+}
 
 // Routes
 app.post('/api/score', async (req, res) => {
@@ -66,24 +98,34 @@ app.get('/api/scores', async (req, res) => {
 });
 
 // Clear all scores from the database
+app.delete('/api/scores', async (req, res) => {
+    try {
+        await Score.deleteMany({});
+        res.status(200).json({ message: 'All scores cleared' });
 
-
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname, '.')));
-
-// Fallback to serve 'index.html' for any unknown routes (for SPA)
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+        // Emit the updated HP and scores to all connected clients
+        updateHPAndScores();
+    } catch (error) {
+        res.status(500).json({ message: 'Error clearing scores' });
+    }
 });
 
 // Helper function to update HP and scores
-async function updateHPAndScores() {
+async function updateHPAndScores(ws = null) {
     try {
         const scores = await Score.find().sort({ score: -1 }).limit(15);
         const totalScore = scores.reduce((sum, score) => sum + score.score, 0);
         const currentHP = 1000000000 - (totalScore * 1000);
-        io.emit('hpUpdate', currentHP);
-        io.emit('scoresUpdate', scores);
+        const data = {
+            hpUpdate: currentHP,
+            scoresUpdate: scores
+        };
+        
+        if (ws) {
+            ws.send(JSON.stringify(data));
+        } else {
+            broadcast(data);
+        }
     } catch (error) {
         console.log('Error updating HP and scores:', error);
     }
@@ -97,6 +139,9 @@ changeStream.on('change', (change) => {
         updateHPAndScores();
     }
 });
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Start the server
 server.listen(port, () => {
