@@ -11,17 +11,16 @@ const port = 80;
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app/', // Your Netlify site URL
+        origin: 'https://cosmic-shortbread-544cb2.netlify.app', // Allow this origin
         methods: ['GET', 'POST'],
         credentials: true,
-        allowedHeaders: ['Access-Control-Allow-Origin'],
     },
 });
 
 // Middleware
 app.use(bodyParser.json());
 app.use(cors({
-    origin: 'https://0c14-2001-1c08-385-fa00-ddfb-e900-fa33-41ce.ngrok-free.app/', // Allow this origin
+    origin: 'https://cosmic-shortbread-544cb2.netlify.app', // Allow this origin
     methods: ['GET', 'POST', 'DELETE'],
     credentials: true,
 }));
